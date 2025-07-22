@@ -2,6 +2,7 @@ import React, { createContext, useContext, useState, useRef, useEffect } from 'r
 import axios from 'axios';
 
 
+const API_URL = import.meta.env.VITE_API_BASE_URL;
 const PlayerContext = createContext(undefined);
 
 export const usePlayer = () => {
@@ -23,6 +24,7 @@ export const PlayerProvider = ({ children }) => {
   const [loading, setLoading] = useState(false);
   const audioRef = useRef(null);
 
+
   const playTrack = async (track, newQueue) => {
     setLoading(true);
     setCurrentTrack(track);
@@ -36,7 +38,7 @@ export const PlayerProvider = ({ children }) => {
     }
 
     try {
-      const response = await axios.get(`/api/stream/${track.id}`);
+      const response = await axios.get(`${API_URL}/api/stream/${track.id}`);
       if (audioRef.current) {
         audioRef.current.src = response.data.url;
         audioRef.current.load();

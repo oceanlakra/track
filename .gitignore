@@ -1,4 +1,6 @@
-client/
+client1/
 .env
 .venv
 venv/
+node_modules/
+cookies.txt

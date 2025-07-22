@@ -20,11 +20,12 @@ YDL_STREAM_OPTS = {
     'format': 'bestaudio[ext=m4a]/bestaudio/best',
     'noplaylist': True,
     'quiet': True,
+    'cookiefile': 'cookies.txt',
 }
 
 @app.route("/")
 def index():
-    return "Sonus Backend API is running!"
+    return "Track Backend API is running!"
 
 # --- CORRECTED: /api/search endpoint ---
 @app.route('/api/search', methods=['GET'])

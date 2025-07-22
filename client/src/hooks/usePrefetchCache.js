@@ -30,7 +30,7 @@ const usePrefetchCache = () => {
     tracks.forEach(async (track) => {
       if (!trackCache.has(track.id)) {
         try {
-          const response = await axios.get(`/api/stream/${track.id}`);
+          const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/api/stream/${track.id}`);
           const url = response.data.url;
           setTrackCache(prev => {
             const updated = new Map(prev);

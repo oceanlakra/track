@@ -4,6 +4,8 @@ import { usePlayer } from '../contexts/PlayerContext';
 import { supabase } from '../lib/supabase';
 import axios from 'axios';
 
+const API_URL = import.meta.env.VITE_API_BASE_URL;
+
 const SearchPage = ({ user }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [results, setResults] = useState([]);
@@ -25,8 +27,10 @@ const SearchPage = ({ user }) => {
   const performSearch = async (query) => {
     setLoading(true);
     try {
-      const response = await axios.get(`/api/search?query=${encodeURIComponent(query)}`);
-      setResults(response.data);
+      const response = await axios.get(`${API_URL}/api/search`, {
+        params: { query }
+      });
+      setResults(response.data || []);
     } catch (error) {
       console.error('Search error:', error);
       setResults([]);
@@ -37,7 +41,6 @@ const SearchPage = ({ user }) => {
 
   const addToLibrary = async (track) => {
     if (!user) return;
-
     try {
       await supabase
         .from('library_songs')
@@ -62,7 +65,6 @@ const SearchPage = ({ user }) => {
       <div className="max-w-4xl mx-auto">
         <div className="mb-8">
           <h1 className="text-3xl font-bold mb-6">Search Music</h1>
-          
           <div className="relative">
             <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
             <input
@@ -81,47 +83,44 @@ const SearchPage = ({ user }) => {
           </div>
         )}
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {results.map((track) => (
-            <div
-              key={track.id}
-              className="bg-gray-800 rounded-lg p-4 hover:bg-gray-700 transition-colors group cursor-pointer"
-            >
-              <div className="relative mb-4">
-                <img
-                  src={track.thumbnail}
-                  alt={track.title}
-                  className="w-full h-32 object-cover rounded-lg"
-                />
-                <div className="absolute inset-0 bg-black bg-opacity-50 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-4">
-                  <button
-                    onClick={() => handlePlayTrack(track)}
-                    className="bg-green-500 text-white rounded-full p-3 hover:bg-green-400 transition-colors"
-                  >
-                    <Play size={20} />
-                  </button>
-                  {user && (
+        {Array.isArray(results) && results.length > 0 && (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {results.map((track) => (
+              <div
+                key={track.id}
+                className="bg-gray-800 rounded-lg p-4 hover:bg-gray-700 transition-colors group cursor-pointer"
+              >
+                <div className="relative mb-4">
+                  <img
+                    src={track.thumbnail}
+                    alt={track.title}
+                    className="w-full h-32 object-cover rounded-lg"
+                  />
+                  <div className="absolute inset-0 bg-black bg-opacity-50 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-4">
                     <button
-                      onClick={() => addToLibrary(track)}
-                      className="bg-gray-700 text-white rounded-full p-3 hover:bg-gray-600 transition-colors"
+                      onClick={() => handlePlayTrack(track)}
+                      className="bg-green-500 text-white rounded-full p-3 hover:bg-green-400 transition-colors"
                     >
-                      <Heart size={20} />
+                      <Play size={20} />
                     </button>
-                  )}
+                    {user && (
+                      <button
+                        onClick={() => addToLibrary(track)}
+                        className="bg-gray-700 text-white rounded-full p-3 hover:bg-gray-600 transition-colors"
+                      >
+                        <Heart size={20} />
+                      </button>
+                    )}
+                  </div>
                 </div>
+                <h3 className="font-semibold text-white mb-1 truncate">{track.title}</h3>
+                <p className="text-gray-400 text-sm truncate">{track.channel}</p>
               </div>
-              
-              <h3 className="font-semibold text-white mb-1 truncate">
-                {track.title}
-              </h3>
-              <p className="text-gray-400 text-sm truncate">
-                {track.channel}
-              </p>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
 
-        {searchQuery && !loading && results.length === 0 && (
+        {searchQuery && !loading && Array.isArray(results) && results.length === 0 && (
           <div className="text-center py-12 text-gray-400">
             <p>No results found for "{searchQuery}"</p>
           </div>
